@@ -1,7 +1,10 @@
 # import libraries
 from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
+from perlin_noise import PerlinNoise
+import random
 
+noise = PerlinNoise(octaves=3, seed=random.randint(1, 1000))
 # create an instance of the  ursina app
 app = Ursina()
 
@@ -45,9 +48,20 @@ mini_block = Entity(
 )
 
 # create the ground
+min_height = -5
 for x in range(-10, 10):
     for z in range(-10, 10):
-        block = Block((x, 0, z), "bedrock")
+        height = noise([x * 0.02, z * 0.02])
+        height = math.floor(height * 7.5)
+        for y in range(height, min_height - 1, -1):
+            if y == min_height:
+                block = Block((x, y + min_height, z), "bedrock")
+            elif y == height:
+                block = Block((x, y + min_height, z), "grass")
+            elif height - y > 2:
+                block = Block((x, y + min_height, z), "stone")
+            else:
+                block = Block((x, y + min_height, z), "dirt")
 
 
 def input(key):
